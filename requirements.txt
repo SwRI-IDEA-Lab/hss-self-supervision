@@ -1,3 +1,4 @@
+einops
 lightning
 lightly
 sunpy
