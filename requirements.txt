@@ -1,0 +1,11 @@
+lightning
+lightly
+sunpy
+pandas
+opencv-python
+scikit-learn
+umap-learn
+seaborn
+torch 
+torchvision 
+torchaudio
