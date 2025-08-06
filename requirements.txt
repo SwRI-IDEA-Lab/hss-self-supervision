@@ -2,7 +2,7 @@ lightning
 lightly
 sunpy
 pandas
-opencv-python
+opencv-python-headless
 scikit-learn
 umap-learn
 seaborn
