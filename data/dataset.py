@@ -7,7 +7,6 @@ import glob
 from torch.utils.data import Dataset
 import numpy as np
 from data.augmentation import Augmentations
-from data.augmentation_list import AugmentationList
 from data.image_utils import read_image
 
 class SDOTilesDataset(Dataset):
@@ -21,14 +20,15 @@ class SDOTilesDataset(Dataset):
         It performs single or double augmentation on each patch using
         the augmentation modules of the packager
     '''
-    def __init__(self, data_path: str, augmentation: str='single',
+    def __init__(self, data_path: str, augmentation_list: list, augmentation_strategy: str='single',
                  data_stride:int = 1, datatype=np.float32):
         '''
             Initializes image files in the dataset
             
             Args:
                 data_path (str): path to the folder containing the images
-                augmentation (str): whether to just return the original patches ('none')
+                augmentation_list (list): List of augmentations to apply to data
+                augmentation_strategy (str): whether to just return the original patches ('none')
                                     perform single augmentation ('single') 
                                     or perform double augmentation ('double').
                                     No augmentation returns a single image,
@@ -41,14 +41,14 @@ class SDOTilesDataset(Dataset):
         self.image_files = glob.glob(data_path + "/**/*.jpg", recursive=True)
         if data_stride>1:
             self.image_files = self.image_files[::data_stride]
-        self.augmentation_list = AugmentationList(instrument="euv")
-        self.augmentation_list.keys.remove('brighten')
+        self.augmentation_list = augmentation_list # AugmentationList(instrument="euv")
+        # self.augmentation_list.keys.remove('brighten')
         # self.augmentation_list.keys.remove('zoom')
         # self.augmentation_list.keys.remove('translate')
         self.datatype=datatype
-        self.augmentation = augmentation
-        if self.augmentation is None:
-            self.augmentation = 'none'
+        self.augmentation_strategy = augmentation_strategy
+        if self.augmentation_strategy is None:
+            self.augmentation_strategy = 'none'
 
     def __len__(self):
         '''
@@ -75,13 +75,13 @@ class SDOTilesDataset(Dataset):
         image = read_image(image_loc = self.image_files[idx],
                            image_format="jpg")
 
-        if self.augmentation.lower() != 'none':
+        if self.augmentation_strategy.lower() != 'none':
             # image2 = image.copy()
 
             aug = Augmentations(image, self.augmentation_list.randomize())
             image2, _ = aug.perform_augmentations(fill_void='Nearest')
 
-            if self.augmentation.lower() == 'double':
+            if self.augmentation_strategy.lower() == 'double':
                 aug = Augmentations(image, self.augmentation_list.randomize())
                 image, _ = aug.perform_augmentations(fill_void='Nearest')
 
