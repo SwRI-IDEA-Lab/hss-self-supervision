@@ -211,3 +211,6 @@ __marimo__/
 # Images
 *.png
 *.jpg
+lightning_logs/
+*.ckpt
+wandb/
