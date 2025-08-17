@@ -7,6 +7,7 @@ import random
 import json
 from collections import Counter
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class AugmentationList():
@@ -68,11 +69,14 @@ class AugmentationList():
                                    self.translate_range[1])
                 dic[key] = (int(a), int(b))
             if (key == 'h_flip'):
-                dic[key] = True
+                if np.random.random()<0.5:
+                    dic[key] = True
             if (key == 'p_flip'):
-                dic[key] = True
+                if np.random.random()<0.5:
+                    dic[key] = True
             if (key == 'v_flip'):
-                dic[key] = True
+                if np.random.random()<0.5:
+                    dic[key] = True
         return dic
 
 
