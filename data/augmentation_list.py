@@ -31,7 +31,7 @@ class AugmentationList():
             self.keys.remove('brighten')
 
         self.zoom_range = (0.8, 1.2)
-        self.brighten_range = (0.5, 1.5)
+        self.brighten_range = (0.75, 1.25)
         self.rotate_range = (-180, 180)
         # self.blur_range = ((1, 1), (2, 2))
         self.translate_range = (-10, 10)
