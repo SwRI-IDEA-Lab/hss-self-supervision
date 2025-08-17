@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-class Augmentations():
+class Augmentations:
     """
     The purpose of this class is to hold a dictionary of all
         different augmentations usable
@@ -39,10 +39,20 @@ class Augmentations():
     """
 
     # https://www.pythoncheatsheet.org/cheatsheet/dictionaries
-    def __init__(self, image: float = None, dct: dict = {
-            "brighten": 1, "translate": (0, 0), "zoom": 1, "rotate": 0,
-            "h_flip": False, "v_flip": False, 'blur': (1, 1),
-            "p_flip": False}):
+    def __init__(
+        self,
+        image: float = None,
+        dct: dict = {
+            "brighten": 1,
+            "translate": (0, 0),
+            "zoom": 1,
+            "rotate": 0,
+            "h_flip": False,
+            "v_flip": False,
+            'blur': (1, 1),
+            "p_flip": False,
+        },
+    ):
         '''
         Initialize an object of the Augmentation class
         Parameters:
@@ -58,9 +68,11 @@ class Augmentations():
         '''
         self.image = image
         self.augmentations = dct
-        self.method_names = [attribute for attribute in dir(self) if
-                             callable(getattr(self, attribute))
-                             and attribute.startswith('__') is False]
+        self.method_names = [
+            attribute
+            for attribute in dir(self)
+            if callable(getattr(self, attribute)) and attribute.startswith('__') is False
+        ]
         self.method_names.remove('perform_augmentations')
         self.augmentationPointer = {}
 
@@ -79,20 +91,20 @@ class Augmentations():
                 randomized dictionary
         '''
         s = image.shape
-        cy = (s[0]-1)/2  # y center : float
-        cx = (s[1]-1)/2  # x center : float
+        cy = (s[0] - 1) / 2  # y center : float
+        cx = (s[1] - 1) / 2  # x center : float
         M = cv.getRotationMatrix2D((cx, cy), rotation, 1)  # rotation matrix
         # Affine transformation to rotate the image and output size s[1],s[0]
         return cv.warpAffine(image, M, (s[1], s[0]))
 
     def brighten(self, image, brighten: float = 1.0):
-        """ Brightens the image by a factor of brighten (default = 1.0) """
+        """Brightens the image by a factor of brighten (default = 1.0)"""
         # use brighten parameter as an exponent to brighten/darken image
-        image_out = np.abs(image)**brighten
+        image_out = np.abs(image) ** brighten
         return image_out
 
     def translate(self, image, translate: int = (0, 0)):
-        """ Translate the image by the amount by translation (x, y) """
+        """Translate the image by the amount by translation (x, y)"""
         s = image.shape
         # Translation Matrix
         M = np.float32([[1, 0, translate[0]], [0, 1, translate[1]]])
@@ -101,30 +113,30 @@ class Augmentations():
         return image
 
     def zoom(self, image, zoom: float = 1.0):
-        """ Zoom the image by the amount by zoom (default = 1.0) """
+        """Zoom the image by the amount by zoom (default = 1.0)"""
         s = image.shape
-        s1 = (int(zoom*s[0]), int(zoom*s[1]))
+        s1 = (int(zoom * s[0]), int(zoom * s[1]))
         img = np.zeros(s)
 
         image = cv.resize(image, (s1[1], s1[0]), interpolation=cv.INTER_AREA)
         # Resize the image using zoom as scaling factor with area interpolation
         if zoom < 1:
-            y1 = s[0]//2 - s1[0]//2
-            y2 = s[0]//2 + s1[0] - s1[0]//2
-            x1 = s[1]//2 - s1[1]//2
-            x2 = s[1]//2 + s1[1] - s1[1]//2
+            y1 = s[0] // 2 - s1[0] // 2
+            y2 = s[0] // 2 + s1[0] - s1[0] // 2
+            x1 = s[1] // 2 - s1[1] // 2
+            x2 = s[1] // 2 + s1[1] - s1[1] // 2
             img[y1:y2, x1:x2] = image
             return img
         else:
             return image
 
     def v_flip(self, image):
-        """ Vertically flips the image """
+        """Vertically flips the image"""
         image = cv.flip(image, 0)
         return image
 
     def h_flip(self, image):
-        """ Horizontally flips the image """
+        """Horizontally flips the image"""
         image = cv.flip(image, 1)
         return image
 
@@ -138,7 +150,7 @@ class Augmentations():
         return image
 
     def p_flip(self, image):
-        """ Polarity flips the image (black to white, white to black) """
+        """Polarity flips the image (black to white, white to black)"""
         image = 1 - image
         return image
 
@@ -156,14 +168,11 @@ class Augmentations():
 
         if fill_void is not None:
             if fill_void == 'Nearest':
-                v, h = augment_image.shape[0]//2, augment_image.shape[1]//2
+                v, h = augment_image.shape[0] // 2, augment_image.shape[1] // 2
                 if len(augment_image.shape) == 3:
-                    augment_image = np.pad(augment_image, ((v, v), (h, h),
-                                                           (0, 0)),
-                                           'edge')
+                    augment_image = np.pad(augment_image, ((v, v), (h, h), (0, 0)), 'edge')
                 else:
-                    augment_image = np.pad(augment_image, ((v, v), (h, h)),
-                                           'edge')
+                    augment_image = np.pad(augment_image, ((v, v), (h, h)), 'edge')
             else:
                 augment_image += epsilon
         # Initialize the augmented image title showing
@@ -172,40 +181,36 @@ class Augmentations():
         for augmentation_name in augmentations_list:
             # loop for updating the image through sequence of augmentations
             if type(self.augmentations[augmentation_name]) == bool:
-                augment_image = self.augmentationPointer[augmentation_name](
-                    augment_image
-                )
+                augment_image = self.augmentationPointer[augmentation_name](augment_image)
             else:
                 augment_image = self.augmentationPointer[augmentation_name](
                     augment_image, self.augmentations[augmentation_name]
                 )
 
-            u_arrow = "\u27F6"  # unicode character for right-ward arrow
+            u_arrow = "\u27f6"  # unicode character for right-ward arrow
             # updating the title through sequence of augmentations
             title = title + u_arrow + augmentation_name
 
         s = augment_image.shape  # shape of the augmented image
         s1 = self.image.shape
-        y1 = s[0]//2 - s1[0]//2
-        y2 = s[0]//2 + s1[0]//2
-        x1 = s[1]//2 - s1[1]//2
-        x2 = s[1]//2 + s1[1]//2
+        y1 = s[0] // 2 - s1[0] // 2
+        y2 = s[0] // 2 + s1[0] // 2
+        x1 = s[1] // 2 - s1[1] // 2
+        x2 = s[1] // 2 + s1[1] // 2
         # central part of the augmented image of size TARGET_SHAPE
         augment_image = augment_image[y1:y2, x1:x2]
-        mask = (augment_image == 0)
+        mask = augment_image == 0
         kernel = np.ones((10, 10), np.uint8)
         mask = cv.dilate(mask.astype('float'), kernel, iterations=1)
 
         if fill_void == 'Blur':
-            blurred_image = self.blur(augment_image, (self.image.shape[1]//2,
-                                                      self.image.shape[0]//2))
+            blurred_image = self.blur(augment_image, (self.image.shape[1] // 2, self.image.shape[0] // 2))
             augment_image[(mask == 1)] = blurred_image[(mask == 1)]
             augment_image[mask == 0] -= epsilon
 
         if fill_void == 'Median':
             if len(self.image.shape) == 3:
-                augment_image[(mask == 1).all(-1)] = np.median(self.image,
-                                                               axis=(0, 1))
+                augment_image[(mask == 1).all(-1)] = np.median(self.image, axis=(0, 1))
             else:
                 augment_image[(mask == 1)] = np.mean(self.image)
             augment_image[mask == 0] -= epsilon
@@ -214,11 +219,11 @@ class Augmentations():
 
 
 if __name__ == '__main__':
-    dict = {'rotate': 10, 'translate':(10, 10)}
+    dict = {'rotate': 10, 'translate': (10, 10)}
     img = Image.open('./sdo_augmentation/example_tile.jpg')
     img = np.array(img).astype(float) / 255
     # for conversion to grayscale image
-    #img = np.median(img, axis=2)
+    # img = np.median(img, axis=2)
     a = Augmentations(img, dict)
     fill_type = 'Nearest'
     img_t, _ = a.perform_augmentations(fill_void=fill_type)
