@@ -10,3 +10,4 @@ seaborn
 torch 
 torchvision 
 torchaudio
+wandb
