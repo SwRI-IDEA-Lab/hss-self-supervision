@@ -10,18 +10,19 @@ from lightly.models.modules.heads import SimSiamPredictionHead, SimSiamProjectio
 from pytorch_lightning.loggers import WandbLogger
 
 from data.dataset import SDOTilesDataset
+from data.augmentation_list import AugmentationList
 
 import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 SEED = 42  # So clever.
-CHECKPOINT_DIR = "sim_siam"
+CHECKPOINT_DIR = "sim_siam_256"
 LOG_EVERY_N_STEPS = 50
-DATA_PATH = '/d0/euv/aia/preprocessed_ext/AIA_211_193_171/AIA_211_193_171_128x128'
+DATA_PATH = '/d0/euv/aia/preprocessed_ext/AIA_211_193_171/AIA_211_193_171_256x256'
 EPOCHS = 16
 DATA_STRIDE = 1
-BATCH_SIZE = 4096
+BATCH_SIZE = 1024
 AUGMENTATION = 'single'
 LOSS = 'contrast'  # 'contrast' or 'cos'
 LEARNING_RATE = 0.1
@@ -78,7 +79,12 @@ if __name__ == "__main__":
 
     pl.seed_everything(SEED, workers=True)
 
-    dataset = SDOTilesDataset(data_path=DATA_PATH, augmentation=AUGMENTATION, data_stride=DATA_STRIDE)
+    augmentation_list = AugmentationList(instrument="euv")
+    # augmentation_list.keys.remove('brighten')
+    augmentation_list.keys.remove('zoom')
+    augmentation_list.keys.remove('blur')
+
+    dataset = SDOTilesDataset(data_path=DATA_PATH, augmentation_list=augmentation_list, augmentation_strategy=AUGMENTATION, data_stride=DATA_STRIDE)
 
     dataloader = torch.utils.data.DataLoader(
         dataset,
@@ -91,7 +97,7 @@ if __name__ == "__main__":
     # Initialize WandB logger
     wandb_logger = WandbLogger(
         project="hss_sss",
-        name="sim_siam",
+        name="sim_siam_256",
         log_model=True,
     )
 
