@@ -1,4 +1,5 @@
 import torch
+torch.set_float32_matmul_precision('high')
 import torch.nn as nn
 import torchvision
 import pytorch_lightning as pl
@@ -14,10 +15,10 @@ from data.augmentation_list import AugmentationList
 
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 SEED = 42  # So clever.
-CHECKPOINT_DIR = "sim_siam_256"
+CHECKPOINT_DIR = "sim_siam_256_ext"
 LOG_EVERY_N_STEPS = 50
 DATA_PATH = '/d0/euv/aia/preprocessed_ext/AIA_211_193_171/AIA_211_193_171_256x256'
 EPOCHS = 16
@@ -29,6 +30,7 @@ LEARNING_RATE = 0.1
 PROJECTION_HEAD_SIZE = 128
 PREDICTION_HEAD_SIZE = 128
 EMBEDING_SIZE = 64
+CHECKPOINT = "/d0/amunozj/git_repos/hss-self-supervision/sim_siam_256/epoch-epoch=09.ckpt"
 
 
 class SimSiam(pl.LightningModule):
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     # Initialize WandB logger
     wandb_logger = WandbLogger(
         project="hss_sss",
-        name="sim_siam_256",
+        name="sim_siam_256_ext",
         log_model=True,
     )
 
@@ -110,7 +112,10 @@ if __name__ == "__main__":
         save_weights_only=False,
     )
 
-    model = SimSiam()
+    if CHECKPOINT is None:
+        model = SimSiam()
+    else:
+        model = SimSiam.load_from_checkpoint(CHECKPOINT)
 
     trainer = pl.Trainer(
         max_epochs=EPOCHS,
